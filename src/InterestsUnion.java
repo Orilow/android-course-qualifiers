@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class Main {
+public class InterestsUnion {
 
     public static void main(String[] args) throws IOException {
         BufferedReader bi = new BufferedReader(new InputStreamReader(System.in));
@@ -20,29 +20,28 @@ public class Main {
 }
 
 class MinUnionSolver {
-    private Map<String, HashSet<String>> groupInterests;
-    private HashSet<String> groupIdsToConcat;
+    private List<HashSet<String>> groupInterests;
+    private HashSet<Integer> groupIdsToConcat;
 
     public MinUnionSolver() {
-        groupInterests = new HashMap<>();
+        groupInterests = new ArrayList<>();
         groupIdsToConcat = new HashSet<>();
     }
 
     public void addDeveloper(String interestsInOneString) {
         List<String> currentInterests = Arrays.asList(interestsInOneString.split(" "));
 
-        if (groupInterests.values().isEmpty()) {
+        if (groupInterests.isEmpty()) {
             addNewGroup(currentInterests);
             return;
         }
 
-        for (String currentGroupId : groupInterests.keySet()) {
-            HashSet<String> currentGroup = groupInterests.get(currentGroupId);
-            for (int i = 0; i < currentInterests.size(); i++) {
-                String currentInterest = currentInterests.get(i);
+        for (int i = 0; i < groupInterests.size(); i++) {
+            HashSet<String> currentGroup = groupInterests.get(i);
+            for (String currentInterest : currentInterests) {
                 boolean collision = currentGroup.stream().anyMatch(x -> x.equals(currentInterest));
                 if (collision) {
-                    addToJoinLater(currentGroupId);
+                    addToJoinLater(i);
                     break;
                 }
             }
@@ -51,13 +50,13 @@ class MinUnionSolver {
         tryUnionGroupsHavingInterests(currentInterests);
     }
 
-    private void addToJoinLater(String groupId) {
+    private void addToJoinLater(int groupId) {
         groupIdsToConcat.add(groupId);
     }
 
     private void addNewGroup(Collection<String> interests) {
         String id = UUID.randomUUID().toString();
-        groupInterests.put(id, new HashSet<>(interests));
+        groupInterests.add(new HashSet<>(interests));
     }
 
     private void tryUnionGroupsHavingInterests(List<String> interests){
@@ -66,10 +65,10 @@ class MinUnionSolver {
         } else if (groupIdsToConcat.size() == 0) {
             addNewGroup(interests);
         } else {
-            Iterator<String> groupIdsIterator = groupIdsToConcat.iterator();
-            String mainGroupId = groupIdsIterator.next();
+            Iterator<Integer> groupIdsIterator = groupIdsToConcat.iterator();
+            int mainGroupId = groupIdsIterator.next();
             while (groupIdsIterator.hasNext()){
-                String currentGroupId = groupIdsIterator.next();
+                int currentGroupId = groupIdsIterator.next();
                 groupInterests.get(mainGroupId).addAll(groupInterests.get(currentGroupId));
                 groupInterests.remove(currentGroupId);
             }
@@ -78,7 +77,7 @@ class MinUnionSolver {
         groupIdsToConcat.clear();
     }
 
-    private void addDeveloperToGroup(String groupId, Collection<String> interests) {
+    private void addDeveloperToGroup(int groupId, Collection<String> interests) {
         groupInterests.get(groupId).addAll(interests);
     }
 
