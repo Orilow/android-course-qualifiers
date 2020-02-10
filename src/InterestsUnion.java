@@ -29,25 +29,19 @@ class MinUnionSolver {
     }
 
     public void addDeveloper(String interestsInOneString) {
-        List<String> currentInterests = Arrays.asList(interestsInOneString.split(" "));
-
-        if (groupInterests.isEmpty()) {
-            addNewGroup(currentInterests);
-            return;
-        }
+        List<String> parsedInterests = Arrays.asList(interestsInOneString.split(" "));
 
         for (int i = 0; i < groupInterests.size(); i++) {
             HashSet<String> currentGroup = groupInterests.get(i);
-            for (String currentInterest : currentInterests) {
-                boolean collision = currentGroup.stream().anyMatch(x -> x.equals(currentInterest));
-                if (collision) {
+            for (String parsedInterest : parsedInterests) {
+                if (currentGroup.contains(parsedInterest)) {
                     addToJoinLater(i);
                     break;
                 }
             }
         }
 
-        tryUnionGroupsHavingInterests(currentInterests);
+        tryUnionGroupsHavingInterests(parsedInterests);
     }
 
     private void addToJoinLater(int groupId) {
@@ -55,23 +49,23 @@ class MinUnionSolver {
     }
 
     private void addNewGroup(Collection<String> interests) {
-        String id = UUID.randomUUID().toString();
         groupInterests.add(new HashSet<>(interests));
     }
 
     private void tryUnionGroupsHavingInterests(List<String> interests){
-        if (groupIdsToConcat.size() == 1) {
-            addDeveloperToGroup(groupIdsToConcat.iterator().next(), interests);
-        } else if (groupIdsToConcat.size() == 0) {
-            addNewGroup(interests);
-        } else {
+        if (groupIdsToConcat.size() > 1) {
             Iterator<Integer> groupIdsIterator = groupIdsToConcat.iterator();
             int mainGroupId = groupIdsIterator.next();
-            while (groupIdsIterator.hasNext()){
+            groupInterests.get(mainGroupId).addAll(interests);
+            while (groupIdsIterator.hasNext()) {
                 int currentGroupId = groupIdsIterator.next();
                 groupInterests.get(mainGroupId).addAll(groupInterests.get(currentGroupId));
                 groupInterests.remove(currentGroupId);
             }
+        } else if (groupIdsToConcat.size() == 1) {
+            addDeveloperToGroup(groupIdsToConcat.iterator().next(), interests);
+        } else {
+            addNewGroup(interests);
         }
 
         groupIdsToConcat.clear();
