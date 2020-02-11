@@ -6,7 +6,7 @@ import java.util.*;
 public class InterestsUnion {
 
     public static void main(String[] args) throws IOException {
-        BufferedReader bi = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader bi = new BufferedReader(new InputStreamReader(System.in)); // a bit faster than Scanner
         int devs_amount = Integer.parseInt(bi.readLine());
         MinUnionSolver minUnionSolver = new MinUnionSolver();
 
@@ -15,13 +15,13 @@ public class InterestsUnion {
             minUnionSolver.addDeveloper(dev_interests);
         }
         bi.close();
-        System.out.print(minUnionSolver.getMinimumUnions());
+        System.out.println(minUnionSolver.getUnionsAmount());
     }
 }
 
 class MinUnionSolver {
-    private Hashtable<Integer, HashMap<String, Boolean>> groupInterests;
-    private HashSet<Integer> groupIdsToConcat;
+    private Map<String, Integer> nodes;
+    private List<HashSet<Integer>> edges;
     private int generatedId;
 
     private int getGeneratedId(){
@@ -29,72 +29,61 @@ class MinUnionSolver {
     }
 
     public MinUnionSolver() {
-        groupInterests = new Hashtable<>();
-        groupIdsToConcat = new HashSet<>();
+        nodes = new HashMap<>();
+        edges = new ArrayList<>();
         generatedId = 0;
     }
 
     public void addDeveloper(String interestsInOneString) {
-        List<String> parsedInterests = Arrays.asList(interestsInOneString.split(" "));
-
-        for (Map.Entry<Integer, HashMap<String, Boolean>> currentGroup: groupInterests.entrySet())
-        {
-            for (String parsedInterest: parsedInterests){
-                if (currentGroup.getValue().containsKey(parsedInterest)) {
-                    addToJoinLater(currentGroup.getKey());
-                    break;
+        String[] parsedInterests = interestsInOneString.split(" ");
+        String previous = null;
+        for (int i = 0; i < parsedInterests.length; i++) {
+            String parsedInterest = parsedInterests[i];
+            if (!nodes.containsKey(parsedInterest)) {
+                int newId = createNode(parsedInterest);
+                if (previous != null) {
+                    addNewEdge(nodes.get(previous), newId);
+                }
+            } else {
+                if (previous != null) {
+                    addNewEdge(nodes.get(parsedInterest), nodes.get(previous));
                 }
             }
+            previous = parsedInterest;
         }
-
-        tryUnionGroupsHavingInterests(parsedInterests);
     }
 
-    private void addToJoinLater(int groupId) {
-        groupIdsToConcat.add(groupId);
+    private int createNode(String name) {
+        int newId = getGeneratedId();
+        nodes.put(name, newId);
+        edges.add(new HashSet<>());
+        return newId;
     }
 
-    private void addNewGroup(Collection<String> interests) {
-        var hashMap = new HashMap<String, Boolean>();
-        for (String interest: interests) {
-            hashMap.put(interest, true);
-        }
-        groupInterests.put(getGeneratedId(), hashMap);
+    private void addNewEdge(int i, int j) {
+        edges.get(i).add(j);
+        edges.get(j).add(i);
     }
 
-    private void tryUnionGroupsHavingInterests(List<String> interests){
-        if (groupIdsToConcat.size() > 1) {
-            Iterator<Integer> groupIdsIterator = groupIdsToConcat.iterator();
-            int mainGroupId = groupIdsIterator.next();
-            var interestsMap = new HashMap<String, Boolean>();
-            for (String interest: interests) {
-                interestsMap.put(interest, true);
+    public int getUnionsAmount() {
+        boolean[] used = new boolean[edges.size()];
+        int componentsCounter = 0;
+        for (int i = 0; i < edges.size(); i++) {
+            if (!used[i]) {
+                componentsCounter++;
+                dfs(i, used);
             }
-            groupInterests.get(mainGroupId).putAll(interestsMap);
-            while (groupIdsIterator.hasNext()) {
-                int currentGroupId = groupIdsIterator.next();
-                groupInterests.get(mainGroupId).putAll(groupInterests.get(currentGroupId));
-                groupInterests.remove(currentGroupId);
+        }
+
+        return componentsCounter;
+    }
+
+    private void dfs(int v, boolean[] used) {
+        used[v] = true;
+        for (int to : edges.get(v)) {
+            if (!used[to]) {
+                dfs(to, used);
             }
-        } else if (groupIdsToConcat.size() == 1) {
-            addDeveloperToGroup(groupIdsToConcat.iterator().next(), interests);
-        } else {
-            addNewGroup(interests);
         }
-
-        groupIdsToConcat.clear();
-    }
-
-    private void addDeveloperToGroup(int groupId, Collection<String> interests) {
-        var hashMap = new HashMap<String, Boolean>();
-        for (String interest: interests) {
-            hashMap.put(interest, true);
-        }
-        groupInterests.get(groupId).putAll(hashMap);
-    }
-
-    public int getMinimumUnions()
-    {
-        return groupInterests.values().size();
     }
 }
