@@ -20,22 +20,28 @@ public class InterestsUnion {
 }
 
 class MinUnionSolver {
-    private List<HashSet<String>> groupInterests;
+    private Hashtable<Integer, HashMap<String, Boolean>> groupInterests;
     private HashSet<Integer> groupIdsToConcat;
+    private int generatedId;
+
+    private int getGeneratedId(){
+        return generatedId++;
+    }
 
     public MinUnionSolver() {
-        groupInterests = new ArrayList<>();
+        groupInterests = new Hashtable<>();
         groupIdsToConcat = new HashSet<>();
+        generatedId = 0;
     }
 
     public void addDeveloper(String interestsInOneString) {
         List<String> parsedInterests = Arrays.asList(interestsInOneString.split(" "));
 
-        for (int i = 0; i < groupInterests.size(); i++) {
-            HashSet<String> currentGroup = groupInterests.get(i);
-            for (String parsedInterest : parsedInterests) {
-                if (currentGroup.contains(parsedInterest)) {
-                    addToJoinLater(i);
+        for (Map.Entry<Integer, HashMap<String, Boolean>> currentGroup: groupInterests.entrySet())
+        {
+            for (String parsedInterest: parsedInterests){
+                if (currentGroup.getValue().containsKey(parsedInterest)) {
+                    addToJoinLater(currentGroup.getKey());
                     break;
                 }
             }
@@ -49,17 +55,25 @@ class MinUnionSolver {
     }
 
     private void addNewGroup(Collection<String> interests) {
-        groupInterests.add(new HashSet<>(interests));
+        var hashMap = new HashMap<String, Boolean>();
+        for (String interest: interests) {
+            hashMap.put(interest, true);
+        }
+        groupInterests.put(getGeneratedId(), hashMap);
     }
 
     private void tryUnionGroupsHavingInterests(List<String> interests){
         if (groupIdsToConcat.size() > 1) {
             Iterator<Integer> groupIdsIterator = groupIdsToConcat.iterator();
             int mainGroupId = groupIdsIterator.next();
-            groupInterests.get(mainGroupId).addAll(interests);
+            var interestsMap = new HashMap<String, Boolean>();
+            for (String interest: interests) {
+                interestsMap.put(interest, true);
+            }
+            groupInterests.get(mainGroupId).putAll(interestsMap);
             while (groupIdsIterator.hasNext()) {
                 int currentGroupId = groupIdsIterator.next();
-                groupInterests.get(mainGroupId).addAll(groupInterests.get(currentGroupId));
+                groupInterests.get(mainGroupId).putAll(groupInterests.get(currentGroupId));
                 groupInterests.remove(currentGroupId);
             }
         } else if (groupIdsToConcat.size() == 1) {
@@ -72,11 +86,15 @@ class MinUnionSolver {
     }
 
     private void addDeveloperToGroup(int groupId, Collection<String> interests) {
-        groupInterests.get(groupId).addAll(interests);
+        var hashMap = new HashMap<String, Boolean>();
+        for (String interest: interests) {
+            hashMap.put(interest, true);
+        }
+        groupInterests.get(groupId).putAll(hashMap);
     }
 
     public int getMinimumUnions()
     {
-        return groupInterests.size();
+        return groupInterests.values().size();
     }
 }
