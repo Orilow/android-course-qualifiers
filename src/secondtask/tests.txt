@@ -1,0 +1,189 @@
+Test 1 input:
+time 10000
+gender m
+age 21
+os_version 15
+x_coord 45.1
+y_coord 45.5
+2
+6
+type LocationAgePush
+text Cheap_beer_in_your_area
+age 18
+x_coord 44.1
+y_coord 50.0
+radius 10
+3
+type TechPush
+text Update_is_available
+os_version 14
+~~~~~~~~~~~~~
+Cheap_beer_in_your_area
+
+Test 2 output:
+time 10000
+gender m
+age 15
+os_version 15
+x_coord 45.1
+y_coord 45.5
+1
+6
+type LocationAgePush
+text Cheap_beer_in_your_area
+age 18
+x_coord 44.1
+y_coord 50.0
+radius 4
+~~~~~~~~~~~~~
+-1
+
+Test 3 input:
+time 10000
+gender m
+age 21
+os_version 15
+x_coord 45.1
+y_coord 45.5
+6
+3
+type GenderPush
+text gender_push_1
+gender m
+6
+type LocationPush
+text location_push_2
+x_coord 43.0
+y_coord 50.0
+radius 15
+expiry_date 11000
+4
+type AgeSpecificPush
+text age_specific_3
+age 18
+expiry_date 10000
+3
+type TechPush
+text tech_push_4
+os_version 16
+6
+type LocationAgePush
+text location_age_5
+x_coord 44.2
+y_coord 44.2
+radius 7
+age 20
+4
+type GenderAgePush
+text gender_age_6
+gender m
+age 20
+~~~~~~~~~~~~~
+gender_push_1
+location_push_2
+age_specific_3
+tech_push_4
+location_age_5
+gender_age_6
+
+Test 4 input:
+time 10000
+gender m
+age 21
+os_version 15
+x_coord 45.1
+y_coord 45.5
+6
+3
+type GenderPush
+text gender_push_1
+gender а
+6
+type LocationPush
+text location_push_2
+x_coord 43.0
+y_coord 50.0
+radius 3
+expiry_date 9000
+4
+type AgeSpecificPush
+text age_specific_3
+age 50
+expiry_date 9000
+3
+type TechPush
+text tech_push_4
+os_version 14
+6
+type LocationAgePush
+text location_age_5
+x_coord 40.2
+y_coord 40.2
+radius 1
+age 22
+4
+type GenderAgePush
+text gender_age_6
+gender f
+age 22
+~~~~~~~~~~~~~
+-1
+
+Test 5 input:
+time 10000
+gender m
+age 21
+os_version 15
+x_coord 45.1
+y_coord 45.5
+8
+6
+type LocationPush
+text location_push_1
+x_coord 43.0
+y_coord 50.0
+radius 10
+expiry_date 9000
+6
+type LocationPush
+text location_push_2
+x_coord 43.0
+y_coord 50.0
+radius 1
+expiry_date 11000
+4
+type AgeSpecificPush
+text age_specific_3
+age 50
+expiry_date 10000
+4
+type AgeSpecificPush
+text age_specific_4
+age 20
+expiry_date 9000
+4
+type GenderAgePush
+text gender_age_5
+gender m
+age 22
+4
+type GenderAgePush
+text gender_age_6
+gender f
+age 20
+6
+type LocationAgePush
+text location_age_7
+x_coord 40.2
+y_coord 40.2
+radius 1
+age 20
+6
+type LocationAgePush
+text location_age_8
+x_coord 40.2
+y_coord 40.2
+radius 10
+age 22
+~~~~~~~~~~~~~
+-1
