@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.MissingFormatArgumentException;
 import java.util.Scanner;
 
-public class SecondInOneFile {
+public class SecondTaskInOneFile {
     public static void main(String[] args) throws ClassNotFoundException,
             NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Scanner scanner = new Scanner(System.in);
